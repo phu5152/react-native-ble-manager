@@ -309,20 +309,13 @@ class BleManager {
     });
   }
 
-  getConnectedPeripherals(serviceUUIDs) {
-    return new Promise((fulfill, reject) => {
-      bleManager.getConnectedPeripherals(serviceUUIDs, (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          if (result != null) {
-            fulfill(result);
-          } else {
-            fulfill([]);
-          }
-        }
-      });
-    });
+  async getConnectedPeripherals() {
+    try {
+      let getConnectedList = await bleManager.getConnectedDeviceNew();
+      return getConnectedList;
+    } catch (error) {
+      return [];
+    }
   }
 
   getBondedPeripherals() {
@@ -369,8 +362,8 @@ class BleManager {
     });
   }
 
-  isPeripheralConnected(peripheralId, serviceUUIDs) {
-    return this.getConnectedPeripherals(serviceUUIDs).then(result => {
+  isPeripheralConnected(peripheralId) {
+    return this.getConnectedPeripherals().then(result => {
       if (
         result.find(p => {
           return p.id === peripheralId;

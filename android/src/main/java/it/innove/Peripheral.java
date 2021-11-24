@@ -249,7 +249,12 @@ public class Peripheral extends BluetoothGattCallback {
 	}
 
 	public boolean isConnected() {
-		return connected;
+		try {
+			boolean isConnectedMethod = (boolean) device.getClass().getMethod("isConnected").invoke(device);
+			return isConnectedMethod;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	public BluetoothDevice getDevice() {

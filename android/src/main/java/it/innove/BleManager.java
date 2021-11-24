@@ -20,6 +20,7 @@ import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.BaseActivityEventListener;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -622,6 +623,26 @@ class BleManager extends ReactContextBaseJavaModule {
             map.pushMap(jsonBundle);
         }
         callback.invoke(null, map);
+    }
+
+    @ReactMethod
+    public void getConnectedDeviceNew(Promise promise) {
+        Log.d(LOG_TAG, "Get bonded peripherals");
+        WritableArray map = Arguments.createArray();
+        Set<BluetoothDevice> deviceSet = getBluetoothAdapter().getBondedDevices();
+        for (BluetoothDevice device : deviceSet) {
+            Peripheral peripheral;
+            if (Build.VERSION.SDK_INT >= LOLLIPOP && !forceLegacy) {
+                peripheral = new LollipopPeripheral(device, reactContext);
+            } else {
+                peripheral = new Peripheral(device, reactContext);
+            }
+            if(peripheral.isConnected()) {
+                WritableMap jsonBundle = peripheral.asWritableMap();
+                map.pushMap(jsonBundle);
+            }
+        }
+        promise.resolve(map);
     }
 
     @ReactMethod
